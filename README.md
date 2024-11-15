@@ -10,7 +10,7 @@ We provide this code to reproduce the results presented in our paper.
 
 1. Clone the repository:
     
-    Download repository from https://anonymous.4open.science/r/RUAGO-0670/README.md
+    Download repository from https://anonymous.4open.science/r/RUAGO-41A2/README.md
 
     ```sh
     cd RUAGO
