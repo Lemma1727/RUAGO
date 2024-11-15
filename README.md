@@ -9,8 +9,10 @@ We provide this code to reproduce the results presented in our paper.
 ### Installation
 
 1. Clone the repository:
-    ```sh
+    
     Download repository from https://anonymous.4open.science/r/RUAGO-0670/README.md
+
+    ```sh
     cd RUAGO
     ```
 2. Create a virtual environment:
