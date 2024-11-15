@@ -1,0 +1,74 @@
+# Paper ID 18256
+
+### Overview
+
+Our approach, RUAGO, integrates adversarial attacks, a generative model, model inversion, and a sample difficulty strategy to remove targeted information while maintaining model performance. Specifically, adversarial attacks create uncertain probability labels for the forget data, and an OOD-trained generative model replaces the retain data, ensuring effective unlearning without access to the original retained data.
+
+We provide this code to reproduce the results presented in our paper.
+
+### Installation
+
+1. Clone the repository:
+    ```sh
+    Download repository from https://anonymous.4open.science/r/RUAGO-0670/README.md
+    cd RUAGO
+    ```
+2. Create a virtual environment:
+    ```sh
+    conda create -n ruago python=3.9.20
+    ```
+3. Install requirements:
+    ```sh
+    conda activate ruago
+    pip install -r requirements.txt
+    ```
+
+### Training
+
+**Training Original model:**
+```sh
+python pretrain.py --dataset cifar10 --model_name ResNet18
+```
+
+**Training Retrain model:**
+```sh
+python pretrain.py --dataset cifar10 --model_name ResNet18 --mode retrain
+```
+
+### Download Pretrained Models
+You can download the pretrained checkpoints of the classification model and the generative model [here](https://drive.google.com/file/d/1oxlW9HAtLhxoqqL1SOBojwNLgTv2iJvr/view?usp=drive_link).
+
+Place the downloaded checkpoints in the RUGAO/ directory.
+
+### Run RAUGO
+
+**VGG16 & CIFAR-10**
+```sh
+python main.py --data_name cifar10 --model_name VGG16 --lr 1e-4 --gamma_1 0.2 --gamma_2 0.01 --eps 32 --alpha 1 --iters 3 --epoch 50
+```
+
+**ResNet18 & CIFAR-10**
+```sh
+python main.py --data_name cifar10 --model_name ResNet18 --lr 5e-5 --gamma_1 0.2 --gamma_2 0.01 --eps 32 --alpha 4 --iters 3 --epoch 50
+```
+
+**ViT & CIFAR-10**
+```sh
+python main.py --data_name cifar10 --model_name ViT --lr 1e-5 --gamma_1 0.15 --gamma_2 0.01 --eps 32 --alpha 0.1 --iters 2 --epoch 2 --batch_size 64 --synthesis_batch_size 32
+```
+
+**VGG16 & CIFAR-10**
+```sh
+python main.py --data_name cifar100 --model_name VGG16 --lr 5e-5 --gamma_1 0.1 --gamma_2 0.01 --eps 32 --alpha 2 --iters 3 --epoch 30
+```
+
+**ResNet18 & CIFAR-10**
+```sh
+python main.py --data_name cifar100 --model_name ResNet18 --lr 1e-4 --gamma_1 0.5 --gamma_2 0.01 --eps 32 --alpha 4 --iters 3 --epoch 50
+```
+
+**ViT & CIFAR-10**
+```sh
+python main.py --data_name cifar100 --model_name ViT --lr 1e-5 --gamma_1 0.1 --gamma_2 0.01 --eps 32 --alpha 0.1 --iters 3 --epoch 2 --batch_size 64 --synthesis_batch_size 32
+```
+
