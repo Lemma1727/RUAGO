@@ -42,6 +42,29 @@ You can download the pretrained checkpoints of both the generative model and the
 
 Place the downloaded checkpoints in the RUGAO/ directory.
 
+```bash
+RUAGO
+├── checkpoints  # Pretrained model checkpoints (train or copy from download link)
+│   ├── original
+│   ├── retrain
+│   └── unlearn
+├── data         # Dataset directory  
+│   ├── cifar10
+│   ├── cifar100
+├── dnnlib       # Deep learning library code
+├── generators   # Generative models (copy from download link)
+├── models       # Model definition files
+├── torch_utils  # PyTorch utility functions
+├── adversarial.py # Adversarial attack implementation
+├── dataset.py     # Dataset loading and preprocessing
+├── dfkd.py      # model inversion code
+├── main.py      # Main execution script
+├── pretrain.py  # Pretraining script
+├── README.md    # Project documentation
+├── requirements.txt  # List of dependencies
+└── utils  # Miscellaneous utility functions
+```
+
 ### Run RAUGO
 
 **VGG16 & CIFAR-10**
