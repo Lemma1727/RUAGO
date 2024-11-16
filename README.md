@@ -38,7 +38,7 @@ python pretrain.py --dataset cifar10 --model_name ResNet18 --mode retrain
 ```
 
 ### Download Pretrained Models
-You can download the pretrained checkpoints of the classification model and the generative model [here](https://drive.google.com/file/d/1oxlW9HAtLhxoqqL1SOBojwNLgTv2iJvr/view?usp=drive_link).
+You can download the pretrained checkpoints of both the generative model and the classification model [here](https://www.dropbox.com/scl/fi/syteb6jjm8a1y672lx4ol/RUAGO_checkpoints.zip?rlkey=z9wg6u3p2otkk9eylxkqldilw&st=fwoym6ng&dl=0).
 
 Place the downloaded checkpoints in the RUGAO/ directory.
 
