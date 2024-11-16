@@ -82,17 +82,17 @@ python main.py --data_name cifar10 --model_name ResNet18 --lr 5e-5 --gamma_1 0.2
 python main.py --data_name cifar10 --model_name ViT --lr 1e-5 --gamma_1 0.15 --gamma_2 0.01 --eps 32 --alpha 0.1 --iters 2 --epoch 2 --batch_size 64 --synthesis_batch_size 32
 ```
 
-**VGG16 & CIFAR-10**
+**VGG16 & CIFAR-100**
 ```sh
 python main.py --data_name cifar100 --model_name VGG16 --lr 5e-5 --gamma_1 0.1 --gamma_2 0.01 --eps 32 --alpha 2 --iters 3 --epoch 30
 ```
 
-**ResNet18 & CIFAR-10**
+**ResNet18 & CIFAR-100**
 ```sh
 python main.py --data_name cifar100 --model_name ResNet18 --lr 1e-4 --gamma_1 0.5 --gamma_2 0.01 --eps 32 --alpha 4 --iters 3 --epoch 50
 ```
 
-**ViT & CIFAR-10**
+**ViT & CIFAR-100**
 ```sh
 python main.py --data_name cifar100 --model_name ViT --lr 1e-5 --gamma_1 0.1 --gamma_2 0.01 --eps 32 --alpha 0.1 --iters 3 --epoch 2 --batch_size 64 --synthesis_batch_size 32
 ```
