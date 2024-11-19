@@ -158,19 +158,3 @@ def get_membership_attack_prob(retain_loader, forget_loader, test_loader, model)
     clf.fit(X_r, Y_r)
     results = clf.predict(X_f)
     return results.mean()
-
-def attention(x):
-        """
-        Taken from https://github.com/szagoruyko/attention-transfer
-        :param x = activations
-        """
-        return F.normalize(x.pow(2).mean(1).view(x.size(0), -1))
-
-
-def attention_diff(x, y):
-    """
-    Taken from https://github.com/szagoruyko/attention-transfer
-    :param x = activations
-    :param y = activations
-    """
-    return (attention(x) - attention(y)).pow(2).mean()

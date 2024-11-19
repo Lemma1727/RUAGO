@@ -46,7 +46,7 @@ class PGD():
 
         return adv_images.detach().cpu()
     
-    def __call__(self, images, labels, target_labels=None, return_disrupted=False, return_prob=False):
+    def __call__(self, images, labels, target_labels=None, return_prob=False):
         self.model.eval()
         if self.denorm:
             images = self.denormalize(images)
@@ -55,19 +55,11 @@ class PGD():
         else:
             adv_inputs = self.forward(images, labels, target_labels)
         
-        if return_disrupted and return_prob:
-            raise ValueError("return_disrupted and return_prob cannot be True at the same time")
         if return_prob:
             with torch.no_grad():
                 adv_outputs = self.model(adv_inputs.to(self.device))
                 adv_probs = torch.softmax(adv_outputs, dim=1)
             self.model.train()
             return adv_inputs.detach().cpu(), adv_probs.detach().cpu()
-        if return_disrupted:
-            with torch.no_grad():
-                adv_outputs = self.model(adv_inputs.to(self.device))
-                adv_labels = adv_outputs.argmax(dim=1)
-            self.model.train()
-            return adv_inputs.detach().cpu(), adv_labels.detach().cpu()
         self.model.train()
         return adv_inputs

@@ -242,27 +242,6 @@ class ResNet(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
-    
-    def get_features(self, x: Tensor) -> Tensor:
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
-
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
-
-        x = self.avgpool(x)
-        x = torch.flatten(x, 1)
-        return x
 
 def ResNet18(num_classes=10):
     return ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
-
-def ResNet34(num_classes=10):
-    return ResNet(BasicBlock, [3, 4, 6, 3], num_classes=num_classes)
-
-def ResNet50(num_classes=10):
-    return ResNet(Bottleneck, [3, 4, 6, 3], num_classes=num_classes)

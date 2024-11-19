@@ -33,28 +33,3 @@ class VGG16(nn.Module):
                            nn.ReLU(inplace=True)]
                 in_channels = x
         return nn.Sequential(*layers)
-    
-    def get_features(self, x):
-        out = self.features(x)
-        out = nn.AvgPool2d(out.size()[3],1)(out)
-        out = out.view(out.size(0), -1)
-        return out
-
-    def forward_with_features(self, x):
-        out = self.features(x)
-        out = nn.AvgPool2d(out.size()[3],1)(out)
-        out = out.view(out.size(0), -1)
-        return out, self.classifier(out)
-    
-if __name__ == '__main__':
-    import torch
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = VGG16()
-    model.to(device)
-    
-    dummy_input = torch.randn(20, 3, 224, 224, device=device)
-    output = model(dummy_input)
-    print(f"Forward Output Shape: {output.shape}")
-
-    features = model.get_features(dummy_input)
-    print(f"Extracted Features Shape: {features.shape}")

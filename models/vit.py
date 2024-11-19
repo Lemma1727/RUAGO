@@ -15,7 +15,3 @@ class ViT(nn.Module):
         x = self.vit(x)
         x = self.classifier(x.last_hidden_state[:, 0, :])
         return x
-    
-    def get_features(self, x):
-        x = self.vit(x)
-        return x.last_hidden_state[:, 0, :]
