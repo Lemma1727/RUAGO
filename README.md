@@ -1,99 +1,203 @@
-# Paper ID 18256
+## RUAGO: Effective and Practical Retain-Free Unlearning via Adversarial Attack and OOD Generator
+
+Official implementation of **"RUAGO: Effective and Practical Retain-Free Unlearning via Adversarial Attack and OOD Generator" (NeurIPS 2025)**.
 
 ### Overview
 
-Our approach, RUAGO, integrates adversarial attacks, a generative model, model inversion, and a sample difficulty strategy to remove targeted information while maintaining model performance. Specifically, adversarial attacks create uncertain probability labels for the forget data, and an OOD-trained generative model replaces the retain data, ensuring effective unlearning without access to the original retained data.
+RUAGO integrates adversarial attacks, an OOD generator, model inversion, and a sample difficulty strategy to remove targeted information while maintaining model utility.
 
-We provide this code to reproduce the results presented in our paper.
+- **Forget**: adversarial attacks create uncertain probability labels for forget data.
+- **Retain (retain-free)**: an OOD-trained generator replaces retain data, enabling unlearning without access to original retain samples.
 
 ### Installation
 
-1. Clone the repository:
-    
-    Download repository from [here](https://anonymous.4open.science/r/RUAGO-41A2/README.md)
+```bash
+git clone https://github.com/Lemma1727/RUAGO.git
+cd RUAGO
 
-    ```sh
-    cd RUAGO
-    ```
-2. Create a virtual environment:
-    ```sh
-    conda create -n ruago python=3.9.20
-    ```
-3. Install requirements:
-    ```sh
-    conda activate ruago
-    pip install -r requirements.txt
-    ```
-
-### Training
-
-**Training Original model:**
-```sh
-python pretrain.py --dataset cifar10 --model_name ResNet18
+conda create -n ruago python=3.9.20 -y
+conda activate ruago
+pip install -r requirements.txt
 ```
 
-**Training Retrain model:**
-```sh
-python pretrain.py --dataset cifar10 --model_name ResNet18 --mode retrain
-```
+### System requirements (recommended)
 
-### Download Pretrained Models
-You can download the pretrained checkpoints of both the generative model and the classification model [here](https://www.dropbox.com/scl/fi/syteb6jjm8a1y672lx4ol/RUAGO_checkpoints.zip?rlkey=z9wg6u3p2otkk9eylxkqldilw&st=fwoym6ng&dl=0).
+This repo includes StyleGAN2-ADA components (`src/dnnlib/`, `src/torch_utils/`) that build **custom CUDA/C++ ops at runtime** via `torch.utils.cpp_extension`.
 
-Place the downloaded checkpoints in the RUGAO/ directory.
+- **Python**: 3.9.x
+- **PyTorch**: `torch==1.12.1+cu113` (see `requirements.txt`)
+- **NVIDIA GPU + driver**: driver compatible with CUDA 11.3 runtime (cu113)
+- **CUDA toolkit (nvcc)**: recommended to match PyTorch CUDA version (**CUDA 11.3**) for building custom ops
+- **C++ compiler**: GCC/Clang toolchain (Linux) for JIT compilation
+
+If CUDA/C++ op compilation fails, the code will typically **fall back to a slower reference implementation** (you may see warnings). For best performance/reproducibility, we recommend having a working `nvcc` toolchain.
+
+Quick checks:
 
 ```bash
-RUAGO
-├── checkpoints  # Pretrained model checkpoints (train or copy from download link)
-│   ├── original
-│   ├── retrain
-│   └── unlearn
-├── data         # Dataset directory  
-│   ├── cifar10
-│   ├── cifar100
-├── dnnlib       # Deep learning library code
-├── generators   # Generative models (copy from download link)
-├── models       # Model definition files
-├── torch_utils  # PyTorch utility functions
-├── adversarial.py # Adversarial attack implementation
-├── dataset.py     # Dataset loading and preprocessing
-├── dfkd.py      # model inversion code
-├── main.py      # Main execution script
-├── pretrain.py  # Pretraining script
-├── README.md    # Project documentation
-├── requirements.txt  # List of dependencies
-└── utils  # Miscellaneous utility functions
+nvidia-smi
+nvcc --version
+python -c "import torch; print(torch.__version__, torch.version.cuda)"
 ```
 
-### Run RAUGO
+### Quickstart
+
+1) Download released assets (required for generator, optional for classifier checkpoints)
+
+```bash
+bash scripts/download_assets.sh
+```
+
+2) Run an experiment preset (model + dataset)
+
+```bash
+bash scripts/resnet18_cifar10.sh
+```
+
+### Data
+
+This repo uses `torchvision.datasets` with `download=True`, so CIFAR-10/100 will be downloaded automatically under `--data_path` (default: `./data`).
+
+**Datasets are not included in the GitHub repository.**
+
+### Released assets (checkpoints + generators)
+
+The following folders are runtime artifacts and are **ignored by Git** by default:
+
+- `checkpoints/` (classifier checkpoints)
+- `generators/` (OOD generator pickle files)
+
+RUAGO requires pretrained generator pickle files under `generators/` (e.g., `gan_coco.pkl`, `gan_tiny.pkl`) to run.
+We do **not** release generator training code in this repository; these generators were trained by us using the StyleGAN2-ADA codebase and are provided via the released assets bundle.
+
+- Pretrained bundle: `RUAGO_checkpoints.zip` (Dropbox) — [`download link`](https://www.dropbox.com/scl/fi/syteb6jjm8a1y672lx4ol/RUAGO_checkpoints.zip?rlkey=z9wg6u3p2otkk9eylxkqldilw&st=fwoym6ng&dl=0)
+
+You can download and unpack it with:
+
+```bash
+bash scripts/download_assets.sh
+```
+
+Place the contents under the project root so the directory structure looks like:
+
+```text
+RUAGO/
+  checkpoints/
+    original/<data_name>/<model_name>/original_model.pth
+    retrain/<data_name>/<model_name>/retrain_model.pth
+    unlearn/<data_name>/<model_name>/(unlearing_model.pth, unlearning_log.txt)
+  generators/
+    gan_coco.pkl
+    gan_tiny.pkl
+```
+
+### Train base models
+
+You can either **train** the classifier checkpoints or **download** them from the released assets bundle.
+
+**Train original model (example)**
+
+```bash
+bash scripts/pretrain_resnet18_cifar10_original.sh
+```
+
+**Train retrain baseline (example)**
+
+```bash
+bash scripts/pretrain_resnet18_cifar10_retrain.sh
+```
+
+### Run RUAGO (unlearning)
+
+Below scripts are “preset runs” for each model/dataset combination:
 
 **VGG16 & CIFAR-10**
-```sh
-python main.py --data_name cifar10 --model_name VGG16 --lr 1e-4 --gamma_1 0.2 --gamma_2 0.01 --eps 32 --alpha 1 --iters 3 --epoch 50
+
+```bash
+bash scripts/vgg16_cifar10.sh
 ```
 
 **ResNet18 & CIFAR-10**
-```sh
-python main.py --data_name cifar10 --model_name ResNet18 --lr 5e-5 --gamma_1 0.2 --gamma_2 0.01 --eps 32 --alpha 4 --iters 3 --epoch 50
+
+```bash
+bash scripts/resnet18_cifar10.sh
 ```
 
 **ViT & CIFAR-10**
-```sh
-python main.py --data_name cifar10 --model_name ViT --lr 1e-5 --gamma_1 0.15 --gamma_2 0.01 --eps 32 --alpha 0.1 --iters 2 --epoch 2 --batch_size 64 --synthesis_batch_size 32
+
+```bash
+bash scripts/vit_cifar10.sh
 ```
 
 **VGG16 & CIFAR-100**
-```sh
-python main.py --data_name cifar100 --model_name VGG16 --lr 5e-5 --gamma_1 0.1 --gamma_2 0.01 --eps 32 --alpha 2 --iters 3 --epoch 30
+
+```bash
+bash scripts/vgg16_cifar100.sh
 ```
 
 **ResNet18 & CIFAR-100**
-```sh
-python main.py --data_name cifar100 --model_name ResNet18 --lr 1e-4 --gamma_1 0.5 --gamma_2 0.01 --eps 32 --alpha 4 --iters 3 --epoch 50
+
+```bash
+bash scripts/resnet18_cifar100.sh
 ```
 
 **ViT & CIFAR-100**
-```sh
-python main.py --data_name cifar100 --model_name ViT --lr 1e-5 --gamma_1 0.1 --gamma_2 0.01 --eps 32 --alpha 0.1 --iters 3 --epoch 2 --batch_size 64 --synthesis_batch_size 32
+
+```bash
+bash scripts/vit_cifar100.sh
+```
+
+### Repository layout (current)
+
+```text
+RUAGO/
+  src/
+    adversarial.py
+    dataset.py
+    dfkd.py
+    main.py
+    pretrain.py
+    models/
+    utils.py
+    dnnlib/
+    torch_utils/
+  scripts/
+    download_assets.sh
+    vgg16_cifar10.sh
+    resnet18_cifar10.sh
+    vit_cifar10.sh
+    vgg16_cifar100.sh
+    resnet18_cifar100.sh
+    vit_cifar100.sh
+    pretrain_resnet18_cifar10_original.sh
+    pretrain_resnet18_cifar10_retrain.sh
+  requirements.txt
+```
+
+### Notes for public release
+
+- **Large assets**: `checkpoints/`, `data/`, `generators/` can be very large and should not be committed.
+- **Third-party code**: this repo includes `src/dnnlib/` and `src/torch_utils/` with NVIDIA copyright headers.
+  Before public release, please ensure the original license/notice requirements are satisfied (e.g., include the correct third-party license text and attribution).
+
+### Third-party licenses
+
+See `THIRD_PARTY_NOTICES.md` and `LICENSES/`. In particular, `src/dnnlib/` and `src/torch_utils/` are distributed under NVIDIA’s StyleGAN2-ADA license (non-commercial restriction).
+
+### License
+
+- **RUAGO code**: MIT License (see `LICENSE`)
+- **Third-party components**: see `THIRD_PARTY_NOTICES.md` and `LICENSES/` (some components include a **non-commercial restriction**)
+
+### Citation
+
+If you use this code, please cite our NeurIPS 2025 paper.
+
+```bibtex
+@inproceedings{leeruago,
+  title={RUAGO: Effective and Practical Retain-Free Unlearning via Adversarial Attack and OOD Generator},
+  author={Lee, SangYong and Chung, Sangjun and Woo, Simon S},
+  booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems}
+}
 ```
 

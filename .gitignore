@@ -1,0 +1,37 @@
+## Python
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+## Environments
+.venv/
+venv/
+env/
+conda/
+
+## IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+## Project runtime artifacts (large / generated)
+checkpoints/
+generators/
+data/
+logs/
+log/
+experiments/logs/
+outputs/
+runs/
+wandb/
+
+## Large model / dataset artifacts (extra safety)
+**/*.pth
+**/*.pt
+**/*.pkl
+**/*.tar.gz
